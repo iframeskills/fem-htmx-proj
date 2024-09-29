@@ -30,3 +30,4 @@ see http://localhost:42069/blocks
 
 
 look up "active search pattern" for updates as you type
+https://htmx.org/examples/active-search/
