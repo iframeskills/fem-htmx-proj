@@ -21,3 +21,9 @@ add a test block to log stuff
 __TESTING__
 </div>
 {{ end }}
+
+
+infinite scroll; fetches new content as you scroll down
+
+go run cmd/class-examples/blocks/main.go
+see http://localhost:42069/blocks
