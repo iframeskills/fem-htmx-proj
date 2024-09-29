@@ -11,3 +11,13 @@ go get github.com/labstack/echo/v4/middleware
 curl -sSfL https://raw.githubusercontent.com/air-verse/air/master/install.sh | sh -s
 installs it in bin/air... put it on 
 cp air /usr/bin/air
+
+## tips:
+use htmx.logAll() to look at what htmx is doing
+
+add a test block to log stuff
+{{ block "test" . }}
+<div>
+__TESTING__
+</div>
+{{ end }}
