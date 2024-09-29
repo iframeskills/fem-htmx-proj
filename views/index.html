@@ -1,68 +1,73 @@
 {{ block "index" .}}
 <!DOCTYPE html>
-<html lang="en">  
-    <head>
-        <title>Index</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
-        <script>
-          document.addEventListener("DOMContentLoaded", (event) =>{
-            document.body.addEventListener('htmx:beforeSwap', (evt) => {
-              if (evt.detail.xhr.status === 422) {
-                // allow 422 responses to swap as we are using this as a signal to show errors
-                // a form was submitted with bad dataand want to rerender the form with errors
-                //
-                // set isError to false to avoid error logging in console
-                evt.detail.shouldSwap = true;
-                evt.detail.isError = false;
-              }
-            });
-          });
-        </script>
-    </head>
-    <body>
-      {{ template "form" .Form }}
-      <hr />
-      {{ template "display" .Data }}
-    </body>
+<html lang="en">
+
+<head>
+  <title>Index</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", (event) => {
+      document.body.addEventListener('htmx:beforeSwap', (evt) => {
+        if (evt.detail.xhr.status === 422) {
+          // allow 422 responses to swap as we are using this as a signal to show errors
+          // a form was submitted with bad dataand want to rerender the form with errors
+          //
+          // set isError to false to avoid error logging in console
+          evt.detail.shouldSwap = true;
+          evt.detail.isError = false;
+        }
+      });
+    });
+  </script>
+</head>
+
+<body>
+  {{ template "form" .Form }}
+  <hr />
+  {{ template "display" .Data }}
+</body>
+
 </html>
 {{ end }}
 
 {{ block "form" . }}
 <form hx-swap="outerHTML" hx-post="/contacts">
-  name: <input 
-    {{ if .Values.name }} value="{{ .Values.name }}" {{ end }}
-    type="text" name="name" />
-  email: <input 
-    {{ if .Values.email }} value="{{ .Values.email }}" {{ end }}
-    type="text" name="email" />
-    
-    {{ if .Errors.email }}
-      <div style="color: red">{{ .Errors.email }}</div>
-    {{ end }}
+  name: <input {{ if .Values.name }} value="{{ .Values.name }}" {{ end }} type="text" name="name" />
+  email: <input {{ if .Values.email }} value="{{ .Values.email }}" {{ end }} type="text" name="email" />
+
+  {{ if .Errors.email }}
+  <div style="color: red">{{ .Errors.email }}</div>
+  {{ end }}
 
   <button type="submit">Create Contact</button>
 </form>
 {{ end }}
 
 {{ block "display" . }}
-  <div id="contacts" style="display: flex; flex-direction: column;">
-    {{ range .Contacts }}
-      {{ template "contact" . }}
-    {{ end }}
-  </div>
+<div id="contacts" style="display: flex; flex-direction: column;">
+  {{ range .Contacts }}
+  {{ template "contact" . }}
+  {{ end }}
+</div>
 {{ end }}
 
 {{ block "contact" . }}
-  <div>
-    Name: <span>{{ .Name }}</span>
-    Email: <span>{{ .Email }}</span>
+<div id="contact-{{ .Id }}" style="display: flex;">
+  <div hx-target="#contact-{{ .Id }}" hx-swap="outerHTML" hx-delete="/contacts/{{ .Id }}" style="width: 1rem; cursor: pointer;">
+    <svg xlmns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path fill="none" d="M0 0h24v24H0z" />
+      <path d="M4 2h16a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1zm0 2v14h16V4H4zm2 2h12v10H6V6z" />
+    </svg>
   </div>
+  Name: <span>{{ .Name }}</span>
+  Email: <span>{{ .Email }}</span>
+</div>
 {{ end }}
 
 {{ block "oob-contact" . }}
-  <div id="contacts" hx-swap-oob="afterbegin" >
-    {{  template "contact" . }}
-  </div>
+<div id="contacts" hx-swap-oob="afterbegin">
+  {{ template "contact" . }}
+</div>
 {{ end }}
