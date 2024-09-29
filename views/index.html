@@ -5,18 +5,64 @@
         <title>Index</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="css/style.css" rel="stylesheet">
         <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+        <script>
+          document.addEventListener("DOMContentLoaded", (event) =>{
+            document.body.addEventListener('htmx:beforeSwap', (evt) => {
+              if (evt.detail.xhr.status === 422) {
+                // allow 422 responses to swap as we are using this as a signal to show errors
+                // a form was submitted with bad dataand want to rerender the form with errors
+                //
+                // set isError to false to avoid error logging in console
+                evt.detail.shouldSwap = true;
+                evt.detail.isError = false;
+              }
+            });
+          });
+        </script>
     </head>
     <body>
-        <div id="count">
-            {{ template "count" . }}
-        </div>
-        <button hx-target="#count" hx-post="/count">Increment</button>
+      {{ template "form" .Form }}
+      <hr />
+      {{ template "display" .Data }}
     </body>
 </html>
 {{ end }}
 
-{{ block "count" . }}
-  Count {{ .Count }}
+{{ block "form" . }}
+<form hx-swap="outerHTML" hx-post="/contacts">
+  name: <input 
+    {{ if .Values.name }} value="{{ .Values.name }}" {{ end }}
+    type="text" name="name" />
+  email: <input 
+    {{ if .Values.email }} value="{{ .Values.email }}" {{ end }}
+    type="text" name="email" />
+    
+    {{ if .Errors.email }}
+      <div style="color: red">{{ .Errors.email }}</div>
+    {{ end }}
+
+  <button type="submit">Create Contact</button>
+</form>
+{{ end }}
+
+{{ block "display" . }}
+  <div id="contacts" style="display: flex; flex-direction: column;">
+    {{ range .Contacts }}
+      {{ template "contact" . }}
+    {{ end }}
+  </div>
+{{ end }}
+
+{{ block "contact" . }}
+  <div>
+    Name: <span>{{ .Name }}</span>
+    Email: <span>{{ .Email }}</span>
+  </div>
+{{ end }}
+
+{{ block "oob-contact" . }}
+  <div id="contacts" hx-swap-oob="afterbegin" >
+    {{  template "contact" . }}
+  </div>
 {{ end }}
